@@ -1,8 +1,8 @@
-package com.tk;
+package com.tk
 
-public class Main {
+object Main {
 
-    public static void main(String[] args) {
-	// write your code here
+    fun main(args: Array<String>) {
+        // write your code here
     }
 }

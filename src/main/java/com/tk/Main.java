@@ -1,8 +1,10 @@
 package com.tk;
 
+import com.tk.database.DBConnection;
+
 class Main {
 
     public static void main(String[] args) {
-        // write your code here
+        DBConnection db = new DBConnection();
     }
 }

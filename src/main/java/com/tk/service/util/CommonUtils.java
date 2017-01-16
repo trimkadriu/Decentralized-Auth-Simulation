@@ -1,9 +1,9 @@
-package com.tk;
+package com.tk.service.util;
 
 /**
  * Utils
  *
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
-public class Utils {
+public class CommonUtils {
 }

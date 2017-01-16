@@ -4,5 +4,5 @@ A simulation software created for my masters thesis with the title of "Introduci
 
 ##TODO
 
-- DBConnection Singleton
-- Load property file on app start
+- Add Spring to use the DI
+- Add AutoCreate Schema if does not exists

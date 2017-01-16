@@ -1,5 +1,8 @@
 package com.tk.database;
 
+import com.tk.domain.enums.ConfigKeys;
+import com.tk.service.util.Config;
+
 import java.sql.*;
 
 /**
@@ -8,18 +11,27 @@ import java.sql.*;
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
 public class DBConnection {
+    // Database Connection Information
+    private static final String dbHost = Config.readValue(ConfigKeys.DB_URL);
+    private static final String dbPort = Config.readValue(ConfigKeys.DB_PORT);
+    private static final String dbSchema = Config.readValue(ConfigKeys.DB_SCHEMA);
+
     // JDBC driver name and database URL
     private static final String driver = "com.mysql.cj.jdbc.Driver";
-    private static final String dbUrl = "jdbc:mysql://localhost:3306/blockchain";
+    private static final String dbUrl = String.format("jdbc:mysql://%s:%s/%s", dbHost, dbPort, dbSchema);
 
     //  Database credentials
-    private static final String username = "root";
-    private static final String password = "";
+    private static final String username = Config.readValue(ConfigKeys.DB_USER);
+    private static final String password = Config.readValue(ConfigKeys.DB_PASSWORD);
 
-    protected Connection dbConnection = null;
+    private static Connection dbConnection = null;
 
-    public DBConnection() {
+    private DBConnection() {
         connectDB();
+    }
+
+    public static Connection getConnection() {
+        return dbConnection;
     }
 
     private boolean connectDB() {

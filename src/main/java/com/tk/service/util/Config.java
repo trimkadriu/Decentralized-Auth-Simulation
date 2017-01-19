@@ -13,20 +13,18 @@ import java.util.Properties;
  */
 public class Config {
     private static final String configFileName = "config.properties";
-    private static InputStream configStream = null;
+    private static Properties properties = null;
 
     public static String readValue(ConfigKeys key) {
-        if(configStream == null) {
-            configStream = Config.class.getClassLoader().getResourceAsStream(configFileName);
-        }
-
         String result = null;
         try {
-            if (configStream != null) {
-                Properties prop = new Properties();
-                prop.load(configStream);
-                result = prop.getProperty(key.toString().toLowerCase());
+            if(properties == null) {
+                InputStream configStream = Config.class.getClassLoader().getResourceAsStream(configFileName);
+                properties = new Properties();
+                properties.load(configStream);
+                configStream.close();
             }
+            result = properties.getProperty(key.toString().toLowerCase());
         } catch (IOException exception) {
             exception.printStackTrace();
         }

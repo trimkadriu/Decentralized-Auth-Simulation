@@ -11,5 +11,4 @@ public interface GenericDao<T> {
     T getById(int id);
     void save(T object);
     void update(T object);
-    void saveOrUpdate(T object);
 }

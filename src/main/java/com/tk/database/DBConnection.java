@@ -10,28 +10,28 @@ import java.sql.*;
  *
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
-public class DBConnection {
+public final class DBConnection {
     // Database Connection Information
     private static final String dbHost = Config.readValue(ConfigKeys.DB_URL);
     private static final String dbPort = Config.readValue(ConfigKeys.DB_PORT);
     private static final String dbSchema = Config.readValue(ConfigKeys.DB_SCHEMA);
 
     // JDBC driver name and database URL
-    private static final String driver = "com.mysql.cj.jdbc.Driver";
+    private static final String driver = "com.mysql.jdbc.Driver";
     private static final String dbUrl = String.format("jdbc:mysql://%s:%s/%s", dbHost, dbPort, dbSchema);
 
     //  Database credentials
     private static final String username = Config.readValue(ConfigKeys.DB_USER);
     private static final String password = Config.readValue(ConfigKeys.DB_PASSWORD);
 
-    private static Connection dbConnection = null;
+    private Connection dbConnection = null;
 
     private DBConnection() {
         connectDB();
     }
 
     public static Connection getConnection() {
-        return dbConnection;
+        return new DBConnection().dbConnection;
     }
 
     private boolean connectDB() {

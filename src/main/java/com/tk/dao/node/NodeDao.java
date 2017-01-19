@@ -1,5 +1,6 @@
 package com.tk.dao.node;
 
+import com.sun.corba.se.pept.transport.ConnectionCache;
 import com.tk.dao.GenericDao;
 import com.tk.dao.transaction.BlockchainTransactionDao;
 import com.tk.database.DBConnection;
@@ -7,6 +8,7 @@ import com.tk.domain.Node;
 import com.tk.domain.enums.NodeRole;
 import com.tk.domain.transaction.Transaction;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,10 +25,9 @@ public abstract class NodeDao implements GenericDao<Node> {
     public Node getById(int id) {
         Node node = null;
         try {
-            String SQL = "SELECT * FROM ? WHERE id=? LIMIT 1;";
+            String SQL = String.format("SELECT * FROM %s WHERE id=? LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
-            statement.setInt(2, id);
+            statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
             if (!resultSet.isBeforeFirst()) {
@@ -49,17 +50,16 @@ public abstract class NodeDao implements GenericDao<Node> {
 
     public void save(Node node) {
         try {
-            String SQL = "INSERT INTO ? ('role', 'public_key', 'private_key', 'reputation') " +
-                    "VALUES (?, ?, ?, ?);";
+            String SQL = String.format("INSERT INTO %s ('id', 'role', 'public_key', 'private_key', 'reputation') " +
+                    "VALUES (?, ?, ?, ?, ?);", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
+            statement.setInt(1, node.getId());
             statement.setString(2, node.getRole().toString());
             statement.setString(3, node.getPublicKey());
             statement.setString(4, node.getPrivateKey());
             statement.setDouble(5, node.getReputation());
-
-            statement.executeUpdate();
+            statement.execute();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -67,11 +67,11 @@ public abstract class NodeDao implements GenericDao<Node> {
 
     public void update(Node node) {
         try {
-            String SQL = "UPDATE ? SET 'role' = ?, 'public_key' = ?, 'private_key' = ?, 'reputation' = ? " +
-                    "WHERE 'id' = ?;";
+            String SQL = String.format("UPDATE %s SET 'id'= ?, 'role' = ?, 'public_key' = ?, 'private_key' = ?, 'reputation' = ? " +
+                    "WHERE 'id' = ?;", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
+            statement.setInt(1, node.getId());
             statement.setString(2, node.getRole().toString());
             statement.setString(3, node.getPublicKey());
             statement.setString(4, node.getPrivateKey());
@@ -81,15 +81,6 @@ public abstract class NodeDao implements GenericDao<Node> {
             statement.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();
-        }
-    }
-
-    public void saveOrUpdate(Node node) {
-        Node nodeInDB = getById(node.getId());
-        if (nodeInDB != null) {
-            update(node);
-        } else {
-            save(node);
         }
     }
 

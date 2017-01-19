@@ -24,10 +24,9 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
     public SPTransaction getById(int id) {
         SPTransaction transaction = null;
         try {
-            String SQL = "SELECT * FROM ? WHERE id=? LIMIT 1;";
+            String SQL = String.format("SELECT * FROM %s WHERE id=? LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
-            statement.setInt(2, id);
+            statement.setInt(1, id);
 
             ResultSet resultSet = statement.executeQuery();
             transaction = fillData(resultSet);
@@ -39,18 +38,17 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
 
     public void save(SPTransaction transaction) {
         try {
-            String SQL = "INSERT INTO ? ('status', 'type', 'provided_service_results', " +
+            String SQL = String.format("INSERT INTO %s ('status', 'type', 'provided_service_results', " +
                     "'sp_public_key', 'result_signed_data', 'result_time_stamp') " +
-                    "VALUES (?, ?, ?, ?, ?, ?);";
+                    "VALUES (?, ?, ?, ?, ?, ?);", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
-            statement.setString(2, transaction.getStatus().toString());
-            statement.setString(3, transaction.getType().toString());
-            statement.setString(4, transaction.getProvidedServiceResults());
-            statement.setString(5, transaction.getSpPublicKey());
-            statement.setString(6, transaction.getResultSignedData());
-            statement.setDate(7, (Date) transaction.getResultTimeStamp());
+            statement.setString(1, transaction.getStatus().toString());
+            statement.setString(2, transaction.getType().toString());
+            statement.setString(3, transaction.getProvidedServiceResults());
+            statement.setString(4, transaction.getSpPublicKey());
+            statement.setString(5, transaction.getResultSignedData());
+            statement.setDate(6, (Date) transaction.getResultTimeStamp());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -60,18 +58,17 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
 
     public void update(SPTransaction transaction) {
         try {
-            String SQL = "UPDATE ? SET 'status' = ?, 'type' = ?, 'provided_service_results' = ?, " +
+            String SQL = String.format("UPDATE %s SET 'status' = ?, 'type' = ?, 'provided_service_results' = ?, " +
                     "'sp_public_key' = ?, 'result_signed_data' = ?, 'result_time_stamp' = ? " +
-                    "WHERE 'id' = ?;";
+                    "WHERE 'id' = ?;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
-            statement.setString(2, transaction.getStatus().toString());
-            statement.setString(3, transaction.getType().toString());
-            statement.setString(4, transaction.getProvidedServiceResults());
-            statement.setString(5, transaction.getSpPublicKey());
-            statement.setString(6, transaction.getResultSignedData());
-            statement.setDate(7, (Date) transaction.getResultTimeStamp());
-            statement.setInt(8, transaction.getId());
+            statement.setString(1, transaction.getStatus().toString());
+            statement.setString(2, transaction.getType().toString());
+            statement.setString(3, transaction.getProvidedServiceResults());
+            statement.setString(4, transaction.getSpPublicKey());
+            statement.setString(5, transaction.getResultSignedData());
+            statement.setDate(6, (Date) transaction.getResultTimeStamp());
+            statement.setInt(7, transaction.getId());
 
             statement.executeUpdate();
         } catch (SQLException exception) {

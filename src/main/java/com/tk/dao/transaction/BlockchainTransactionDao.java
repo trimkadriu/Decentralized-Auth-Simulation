@@ -25,10 +25,9 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
     public BlockchainTransaction getById(int id) {
         BlockchainTransaction transaction = null;
         try {
-            String SQL = "SELECT * FROM ? WHERE id = ? LIMIT 1;";
+            String SQL = String.format("SELECT * FROM %s WHERE id = ? LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
-            statement.setInt(2, id);
+            statement.setInt(1, id);
 
             ResultSet resultSet = statement.executeQuery();
             transaction = fillData(resultSet);
@@ -40,22 +39,21 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
 
     public void save(BlockchainTransaction transaction) {
         try {
-            String SQL = "INSERT INTO ? ('status', 'type', 'miner_public_key', 'blockchain_signed_data', " +
+            String SQL = String.format("INSERT INTO %s ('status', 'type', 'miner_public_key', 'blockchain_signed_data', " +
                     "'blockchain_time_stamp', 'sr_reputation_on_blockchain', 'sp_reputation_on_blockchain', " +
                     "'miner_reputation_on_blockchain', 'proof_of_work') " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
-            statement.setString(2, transaction.getStatus().toString());
-            statement.setString(3, transaction.getType().toString());
-            statement.setString(4, transaction.getMinerPublicKey());
-            statement.setString(5, transaction.getBlockchainSignedData());
-            statement.setDate(6, (Date) transaction.getBlockchainTimeStamp());
-            statement.setDouble(7, transaction.getSrReputationOnBlockchain());
-            statement.setDouble(8, transaction.getSpReputationOnBlockchain());
-            statement.setDouble(9, transaction.getMinerReputationOnBlockchain());
-            statement.setString(10, transaction.getProofOfWork());
+            statement.setString(1, transaction.getStatus().toString());
+            statement.setString(2, transaction.getType().toString());
+            statement.setString(3, transaction.getMinerPublicKey());
+            statement.setString(4, transaction.getBlockchainSignedData());
+            statement.setDate(5, (Date) transaction.getBlockchainTimeStamp());
+            statement.setDouble(6, transaction.getSrReputationOnBlockchain());
+            statement.setDouble(7, transaction.getSpReputationOnBlockchain());
+            statement.setDouble(8, transaction.getMinerReputationOnBlockchain());
+            statement.setString(9, transaction.getProofOfWork());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -65,22 +63,21 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
 
     public void update(BlockchainTransaction transaction) {
         try {
-            String SQL = "UPDATE ? SET 'status' = ?, 'type' = ?, 'miner_public_key' = ?, 'blockchain_signed_data' = ?, " +
+            String SQL = String.format("UPDATE %s SET 'status' = ?, 'type' = ?, 'miner_public_key' = ?, 'blockchain_signed_data' = ?, " +
                     "'blockchain_time_stamp' = ?, 'sr_reputation_on_blockchain' = ?, 'sp_reputation_on_blockchain' = ?, " +
                     "'miner_reputation_on_blockchain' = ?, 'proof_of_work' = ? " +
-                    "WHERE 'id' = ?;";
+                    "WHERE 'id' = ?;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
-            statement.setString(2, transaction.getStatus().toString());
-            statement.setString(3, transaction.getType().toString());
-            statement.setString(4, transaction.getMinerPublicKey());
-            statement.setString(5, transaction.getBlockchainSignedData());
-            statement.setDate(6, (Date) transaction.getBlockchainTimeStamp());
-            statement.setDouble(7, transaction.getSrReputationOnBlockchain());
-            statement.setDouble(8, transaction.getSpReputationOnBlockchain());
-            statement.setDouble(9, transaction.getMinerReputationOnBlockchain());
-            statement.setString(10, transaction.getProofOfWork());
-            statement.setInt(11, transaction.getId());
+            statement.setString(1, transaction.getStatus().toString());
+            statement.setString(2, transaction.getType().toString());
+            statement.setString(3, transaction.getMinerPublicKey());
+            statement.setString(4, transaction.getBlockchainSignedData());
+            statement.setDate(5, (Date) transaction.getBlockchainTimeStamp());
+            statement.setDouble(6, transaction.getSrReputationOnBlockchain());
+            statement.setDouble(7, transaction.getSpReputationOnBlockchain());
+            statement.setDouble(8, transaction.getMinerReputationOnBlockchain());
+            statement.setString(9, transaction.getProofOfWork());
+            statement.setInt(10, transaction.getId());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -106,11 +103,10 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
     public BlockchainTransaction getLatestTransactionByPublicKey(String publicKey) {
         BlockchainTransaction transaction = null;
         try {
-            String SQL = "SELECT * FROM ? WHERE ? IN('sr_public_key', 'sp_public_key', 'miner_public_key') " +
-                    "ORDER BY blockchain_time_stamp DESC LIMIT 1;";
+            String SQL = String.format("SELECT * FROM %s WHERE ? IN('sr_public_key', 'sp_public_key', 'miner_public_key') " +
+                    "ORDER BY blockchain_time_stamp DESC LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, TABLE_NAME);
-            statement.setString(2, publicKey);
+            statement.setString(1, publicKey);
 
             ResultSet resultSet = statement.executeQuery();
             transaction = fillData(resultSet);

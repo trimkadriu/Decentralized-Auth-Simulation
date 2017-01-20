@@ -12,15 +12,22 @@ import com.tk.domain.transaction.Transaction;
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
 public class TransactionFactory {
-    public Transaction getTransaction(TransactionType transactionType) {
-        Transaction transaction = null;
+
+    @SuppressWarnings("unchecked")
+    public <T extends Transaction> T getTransaction(TransactionType transactionType) {
         if (transactionType.equals(TransactionType.SR_TRANSACTION)) {
-            transaction = new SRTransaction();
+            SRTransaction transaction = new SRTransaction();
+            transaction.setType(TransactionType.SR_TRANSACTION);
+            return (T) transaction;
         } else if (transactionType.equals(TransactionType.SP_TRANSACTION)) {
-            transaction = new SPTransaction();
+            SPTransaction transaction = new SPTransaction();
+            transaction.setType(TransactionType.SP_TRANSACTION);
+            return (T) transaction;
         } else if (transactionType.equals(TransactionType.BLOCKCHAIN_TRANSACTION)) {
-            transaction = new BlockchainTransaction();
+            BlockchainTransaction transaction = new BlockchainTransaction();
+            transaction.setType(TransactionType.BLOCKCHAIN_TRANSACTION);
+            return (T) transaction;
         }
-        return transaction;
+        return null;
     }
 }

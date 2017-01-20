@@ -1,5 +1,6 @@
 package com.tk.service;
 
+import com.tk.dao.node.NodeDao;
 import com.tk.dao.node.SRNodeDao;
 import com.tk.domain.Node;
 import com.tk.domain.enums.NodeRole;
@@ -10,14 +11,13 @@ import com.tk.domain.enums.NodeRole;
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
 public class NodeService {
-    SRNodeDao srNodeDao;
+    NodeDao nodeDao;
 
-    public NodeService() {
-        srNodeDao = new SRNodeDao();
+    public <T extends NodeDao> T NodeService(Class<T> type) throws Exception {
     }
 
     public Node getNode(int id) {
-        return srNodeDao.getById(id);
+        return nodeDao.getById(id);
     }
 
     public boolean exists(int id) {
@@ -34,9 +34,9 @@ public class NodeService {
     public void saveOrUpdate(Node node) {
         Node nodeInDB = getNode(node.getId());
         if (nodeInDB != null) {
-            srNodeDao.update(node);
+            nodeDao.update(node);
         } else {
-            srNodeDao.save(node);
+            nodeDao.save(node);
         }
     }
 
@@ -63,5 +63,11 @@ public class NodeService {
 
         saveOrUpdate(node);
         return node;
+    }
+
+    public String generateSRSignature(Node node, String serviceName) {
+        String signatureData = node.getPublicKey() + node.getReputation() + serviceName;
+        String signatureDataHash = CryptoService.getHash(signatureData);
+        return CryptoService.encrypt(signatureDataHash, CryptoService.getPrivateKey(node.getPrivateKey()));
     }
 }

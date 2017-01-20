@@ -14,7 +14,7 @@ class Main {
 
     public static void main(String[] args) throws DecAuthSimException {
         CommandLine commandLine = CommonUtils.getCLIOptions(args);
-        if(commandLine == null)
+        if (commandLine == null)
             throw new DecAuthSimException("No options are provided");
 
         String id = commandLine.getOptionValue(CLIOptions.ID.getOption());

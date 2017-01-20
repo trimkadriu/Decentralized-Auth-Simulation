@@ -24,7 +24,7 @@ public class SRTransactionDao implements GenericDao<SRTransaction> {
     public SRTransaction getById(int id) {
         SRTransaction transaction = null;
         try {
-            String SQL = String.format("SELECT * FROM %s WHERE id=? LIMIT 1;", TABLE_NAME);
+            String SQL = String.format("SELECT * FROM %s WHERE `id`=? LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setInt(1, id);
 
@@ -38,18 +38,19 @@ public class SRTransactionDao implements GenericDao<SRTransaction> {
 
     public void save(SRTransaction transaction) {
         try {
-            String SQL = String.format("INSERT INTO %s ('status', 'type', 'requested_service_name', " +
-                    "'sr_public_key', 'request_signed_data', 'request_time_stamp', 'sr_reputation') " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?);", TABLE_NAME);
+            String SQL = String.format("INSERT INTO %s (`id`, `status`, `type`, `requested_service_name`, " +
+                    "`sr_public_key`, `request_signed_data`, `request_time_stamp`, `sr_reputation`) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?);", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, transaction.getStatus().toString());
-            statement.setString(2, transaction.getType().toString());
-            statement.setString(3, transaction.getRequestedServiceName());
-            statement.setString(4, transaction.getSrPublicKey());
-            statement.setString(5, transaction.getRequestSignedData());
-            statement.setDate(6, (Date) transaction.getRequestTimeStamp());
-            statement.setDouble(7, transaction.getSrReputation());
+            statement.setInt(1, transaction.getId());
+            statement.setString(2, transaction.getStatus().toString());
+            statement.setString(3, transaction.getType().toString());
+            statement.setString(4, transaction.getRequestedServiceName());
+            statement.setString(5, transaction.getSrPublicKey());
+            statement.setString(6, transaction.getRequestSignedData());
+            statement.setDate(7, (Date) transaction.getRequestTimeStamp());
+            statement.setDouble(8, transaction.getSrReputation());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -59,9 +60,9 @@ public class SRTransactionDao implements GenericDao<SRTransaction> {
 
     public void update(SRTransaction transaction) {
         try {
-            String SQL = String.format("UPDATE %s SET 'status' = ?, 'type' = ?, 'requested_service_name' = ?, " +
-                    "'sr_public_key' = ?, 'request_signed_data' = ?, 'request_time_stamp' = ?, 'sr_reputation' = ? " +
-                    "WHERE 'id' = ?;", TABLE_NAME);
+            String SQL = String.format("UPDATE %s SET `status` = ?, `type` = ?, `requested_service_name` = ?, " +
+                    "`sr_public_key` = ?, `request_signed_data` = ?, `request_time_stamp` = ?, `sr_reputation` = ? " +
+                    "WHERE `id` = ?;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setString(1, transaction.getStatus().toString());
             statement.setString(2, transaction.getType().toString());

@@ -24,7 +24,7 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
     public SPTransaction getById(int id) {
         SPTransaction transaction = null;
         try {
-            String SQL = String.format("SELECT * FROM %s WHERE id=? LIMIT 1;", TABLE_NAME);
+            String SQL = String.format("SELECT * FROM %s WHERE `id` = ? LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setInt(1, id);
 
@@ -38,17 +38,18 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
 
     public void save(SPTransaction transaction) {
         try {
-            String SQL = String.format("INSERT INTO %s ('status', 'type', 'provided_service_results', " +
-                    "'sp_public_key', 'result_signed_data', 'result_time_stamp') " +
-                    "VALUES (?, ?, ?, ?, ?, ?);", TABLE_NAME);
+            String SQL = String.format("INSERT INTO %s (`id`, `status`, `type`, `provided_service_results`, " +
+                    "`sp_public_key`, `result_signed_data`, `result_time_stamp`) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?);", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setString(1, transaction.getStatus().toString());
-            statement.setString(2, transaction.getType().toString());
-            statement.setString(3, transaction.getProvidedServiceResults());
-            statement.setString(4, transaction.getSpPublicKey());
-            statement.setString(5, transaction.getResultSignedData());
-            statement.setDate(6, (Date) transaction.getResultTimeStamp());
+            statement.setInt(1, transaction.getId());
+            statement.setString(2, transaction.getStatus().toString());
+            statement.setString(3, transaction.getType().toString());
+            statement.setString(4, transaction.getProvidedServiceResults());
+            statement.setString(5, transaction.getSpPublicKey());
+            statement.setString(6, transaction.getResultSignedData());
+            statement.setDate(7, (Date) transaction.getResultTimeStamp());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -58,9 +59,9 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
 
     public void update(SPTransaction transaction) {
         try {
-            String SQL = String.format("UPDATE %s SET 'status' = ?, 'type' = ?, 'provided_service_results' = ?, " +
-                    "'sp_public_key' = ?, 'result_signed_data' = ?, 'result_time_stamp' = ? " +
-                    "WHERE 'id' = ?;", TABLE_NAME);
+            String SQL = String.format("UPDATE %s SET `status` = ?, `type` = ?, `provided_service_results` = ?, " +
+                    "`sp_public_key` = ?, `result_signed_data` = ?, `result_time_stamp` = ? " +
+                    "WHERE `id` = ?;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setString(1, transaction.getStatus().toString());
             statement.setString(2, transaction.getType().toString());
@@ -98,7 +99,7 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
         }
 
         TransactionFactory transactionFactory = new TransactionFactory();
-        transaction = (SPTransaction) transactionFactory.getTransaction(TransactionType.SP_TRANSACTION);
+        transaction = transactionFactory.getTransaction(TransactionType.SP_TRANSACTION);
         while (resultSet.next()) {
             transaction.setId(resultSet.getInt("id"));
             transaction.setStatus(TransactionStatus.valueOf(resultSet.getString("status")));

@@ -25,7 +25,7 @@ public abstract class NodeDao implements GenericDao<Node> {
     public Node getById(int id) {
         Node node = null;
         try {
-            String SQL = String.format("SELECT * FROM %s WHERE id=? LIMIT 1;", TABLE_NAME);
+            String SQL = String.format("SELECT * FROM %s WHERE `id` = ? LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
@@ -50,7 +50,7 @@ public abstract class NodeDao implements GenericDao<Node> {
 
     public void save(Node node) {
         try {
-            String SQL = String.format("INSERT INTO %s ('id', 'role', 'public_key', 'private_key', 'reputation') " +
+            String SQL = String.format("INSERT INTO %s (`id`, `role`, `public_key`, `private_key`, `reputation`) " +
                     "VALUES (?, ?, ?, ?, ?);", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
@@ -67,16 +67,15 @@ public abstract class NodeDao implements GenericDao<Node> {
 
     public void update(Node node) {
         try {
-            String SQL = String.format("UPDATE %s SET 'id'= ?, 'role' = ?, 'public_key' = ?, 'private_key' = ?, 'reputation' = ? " +
-                    "WHERE 'id' = ?;", TABLE_NAME);
+            String SQL = String.format("UPDATE %s SET `role` = ?, `public_key` = ?, `private_key` = ?, `reputation` = ? " +
+                    "WHERE `id` = ?;", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
-            statement.setInt(1, node.getId());
-            statement.setString(2, node.getRole().toString());
-            statement.setString(3, node.getPublicKey());
-            statement.setString(4, node.getPrivateKey());
-            statement.setDouble(5, node.getReputation());
-            statement.setInt(6, node.getId());
+            statement.setString(1, node.getRole().toString());
+            statement.setString(2, node.getPublicKey());
+            statement.setString(3, node.getPrivateKey());
+            statement.setDouble(4, node.getReputation());
+            statement.setInt(5, node.getId());
 
             statement.executeUpdate();
         } catch (SQLException exception) {

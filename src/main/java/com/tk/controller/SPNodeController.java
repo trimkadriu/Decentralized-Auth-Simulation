@@ -8,6 +8,7 @@ import com.tk.domain.Node;
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
 public class SPNodeController implements NodeController {
+
     public void start(Node node) {
 
     }

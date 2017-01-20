@@ -8,7 +8,7 @@ import com.tk.domain.enums.TransactionType;
  *
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
-public class Transaction {
+public abstract class Transaction {
     private int id;
     private TransactionStatus status;
     private TransactionType type;

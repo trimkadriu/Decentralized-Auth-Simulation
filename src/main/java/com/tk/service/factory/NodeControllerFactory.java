@@ -17,9 +17,9 @@ public class NodeControllerFactory {
         NodeController nodeController = null;
         if (nodeRole.equals(NodeRole.SR_NODE)) {
             nodeController = new SRNodeController();
-        } else if (nodeRole.equals(TransactionType.SP_TRANSACTION)) {
+        } else if (nodeRole.equals(NodeRole.SP_NODE)) {
             nodeController = new SPNodeController();
-        } else if (nodeRole.equals(TransactionType.BLOCKCHAIN_TRANSACTION)) {
+        } else if (nodeRole.equals(NodeRole.MINER_NODE)) {
             nodeController = new MinerNodeController();
         }
         return nodeController;

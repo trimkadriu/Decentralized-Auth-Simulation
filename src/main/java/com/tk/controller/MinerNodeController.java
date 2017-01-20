@@ -1,6 +1,7 @@
 package com.tk.controller;
 
 import com.tk.domain.Node;
+import com.tk.domain.exception.DecAuthSimException;
 
 /**
  * MinerNodeController
@@ -9,7 +10,7 @@ import com.tk.domain.Node;
  */
 public class MinerNodeController implements NodeController {
 
-    public void start(Node node) {
+    public void start(Node node) throws DecAuthSimException {
 
     }
 }

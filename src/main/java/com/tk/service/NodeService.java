@@ -4,6 +4,8 @@ import com.tk.dao.node.NodeDao;
 import com.tk.dao.node.SRNodeDao;
 import com.tk.domain.Node;
 import com.tk.domain.enums.NodeRole;
+import com.tk.domain.exception.DecAuthSimException;
+import com.tk.service.factory.NodeDaoFactory;
 
 /**
  * SRNodeService
@@ -13,7 +15,9 @@ import com.tk.domain.enums.NodeRole;
 public class NodeService {
     NodeDao nodeDao;
 
-    public <T extends NodeDao> T NodeService(Class<T> type) throws Exception {
+    public NodeService(NodeRole role) {
+        NodeDaoFactory nodeDaoFactory = new NodeDaoFactory();
+        nodeDao = nodeDaoFactory.getNodeDao(role);
     }
 
     public Node getNode(int id) {

@@ -10,9 +10,12 @@ import com.tk.service.factory.NodeControllerFactory;
 import com.tk.service.util.CommonUtils;
 import org.apache.commons.cli.CommandLine;
 
+import java.util.Date;
+
 class Main {
 
-    public static void main(String[] args) throws DecAuthSimException {
+    public static void main(String[] args) throws Exception {
+        System.out.println(CommonUtils.generateId()); System.exit(0);
         CommandLine commandLine = CommonUtils.getCLIOptions(args);
         if (commandLine == null)
             throw new DecAuthSimException("No options are provided");
@@ -23,7 +26,7 @@ class Main {
         String privateKey = commandLine.getOptionValue(CLIOptions.PRIV_KEY.getOption());
         String reputation = commandLine.getOptionValue(CLIOptions.REPUTATION.getOption());
 
-        NodeService nodeService = new NodeService();
+        NodeService nodeService = new NodeService(NodeRole.valueOf(role));
         Node node = nodeService.initializeNode(id, role, publicKey, privateKey, reputation);
 
         NodeControllerFactory nodeControllerFactory = new NodeControllerFactory();

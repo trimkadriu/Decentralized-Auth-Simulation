@@ -1,6 +1,5 @@
 package com.tk.dao.node;
 
-import com.sun.corba.se.pept.transport.ConnectionCache;
 import com.tk.dao.GenericDao;
 import com.tk.dao.transaction.BlockchainTransactionDao;
 import com.tk.database.DBConnection;
@@ -8,7 +7,6 @@ import com.tk.domain.Node;
 import com.tk.domain.enums.NodeRole;
 import com.tk.domain.transaction.Transaction;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -2,6 +2,11 @@ package com.tk.service.util;
 
 import com.tk.domain.enums.CLIOptions;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang.SystemUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Random;
 
 /**
  * Utils
@@ -37,5 +42,20 @@ public class CommonUtils {
             formatter.printHelp("java auth-sim", options);
         }
         return commandLine;
+    }
+
+    public static void clearCMD() {
+        String clearCommand = SystemUtils.IS_OS_WINDOWS ? "cls" : "clear";
+        try {
+            Runtime.getRuntime().exec(clearCommand);
+        } catch (IOException exception) {
+        }
+    }
+
+    public static int generateId() {
+        long timeNow = new Date().getTime();
+        String timeNowString = String.valueOf(timeNow);
+        int id = Integer.parseInt(timeNowString.substring(3, timeNowString.length() - 1));
+        return id;
     }
 }

@@ -78,15 +78,6 @@ public class SRTransactionDao implements GenericDao<SRTransaction> {
         }
     }
 
-    public void saveOrUpdate(SRTransaction transaction) {
-        SRTransaction transactionInBC = getById(transaction.getId());
-        if (transactionInBC != null) {
-            update(transaction);
-        } else {
-            save(transaction);
-        }
-    }
-
     public List<SRTransaction> getAllTransactionsByRole(String publicKey) {
         List<SRTransaction> transactions = null;
         // TODO: Still unimplemented since no need was shown
@@ -100,6 +91,22 @@ public class SRTransactionDao implements GenericDao<SRTransaction> {
                     "ORDER BY `request_time_stamp` DESC LIMIT 1;", TABLE_NAME, TransactionStatus.SERVICE_REQUESTED.toString());
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setString(1, spPublicKey);
+
+            ResultSet resultSet = statement.executeQuery();
+            transaction = fillData(resultSet);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+        return transaction;
+    }
+
+    public SRTransaction getLatestServiceRequest() {
+        SRTransaction transaction = null;
+        try {
+            String SQL = String.format("SELECT * FROM %s WHERE `status` = ? ORDER BY `request_time_stamp` " +
+                    "DESC LIMIT 1;", TABLE_NAME);
+            PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
+            statement.setString(1, TransactionStatus.REQ_AUTHENTICATION.toString());
 
             ResultSet resultSet = statement.executeQuery();
             transaction = fillData(resultSet);

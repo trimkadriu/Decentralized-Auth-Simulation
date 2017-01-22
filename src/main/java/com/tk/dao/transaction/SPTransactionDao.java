@@ -37,8 +37,8 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
     public void save(SPTransaction transaction) {
         try {
             String SQL = String.format("INSERT INTO %s (`id`, `status`, `type`, `provided_service_results`, " +
-                    "`sp_public_key`, `result_signed_data`, `result_time_stamp`) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?);", TABLE_NAME);
+                    "`sp_public_key`, `result_signed_data`, `result_time_stamp`, `sp_reputation`) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?);", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setInt(1, transaction.getId());
@@ -48,6 +48,7 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
             statement.setString(5, transaction.getSpPublicKey());
             statement.setString(6, transaction.getResultSignedData());
             statement.setTimestamp(7, new Timestamp(transaction.getResultTimeStamp().getTime()));
+            statement.setDouble(8, transaction.getSpReputation());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -58,7 +59,7 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
     public void update(SPTransaction transaction) {
         try {
             String SQL = String.format("UPDATE %s SET `status` = ?, `type` = ?, `provided_service_results` = ?, " +
-                    "`sp_public_key` = ?, `result_signed_data` = ?, `result_time_stamp` = ? " +
+                    "`sp_public_key` = ?, `result_signed_data` = ?, `result_time_stamp` = ?, `sp_reputation` = ? " +
                     "WHERE `id` = ?;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setString(1, transaction.getStatus().toString());
@@ -67,7 +68,8 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
             statement.setString(4, transaction.getSpPublicKey());
             statement.setString(5, transaction.getResultSignedData());
             statement.setTimestamp(6, new Timestamp(transaction.getResultTimeStamp().getTime()));
-            statement.setInt(7, transaction.getId());
+            statement.setDouble(7, transaction.getSpReputation());
+            statement.setInt(8, transaction.getId());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -96,6 +98,7 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
             transaction.setProvidedServiceResults(resultSet.getString("provided_service_results"));
             transaction.setSpPublicKey(resultSet.getString("sp_public_key"));
             transaction.setResultSignedData(resultSet.getString("result_signed_data"));
+            transaction.setSpReputation(resultSet.getDouble("sp_reputation"));
             Timestamp resultTimestamp = resultSet.getTimestamp("result_time_stamp");
             transaction.setResultTimeStamp(resultTimestamp == null ? null : new Date(resultTimestamp.getTime()));
         }

@@ -1,5 +1,8 @@
 package com.tk.service;
 
+import com.tk.domain.enums.ConfigKeys;
+import com.tk.service.util.CommonUtils;
+import com.tk.service.util.Config;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
@@ -85,8 +88,32 @@ public final class CryptoService {
         return null;
     }
 
+    public static byte[] getHashBytes(String text) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(text.getBytes("UTF-8"));
+            return md.digest();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static String digitallySign(String data, String privateKey) {
         String signatureDataHash = getHash(data);
         return encrypt(signatureDataHash, getPrivateKey(privateKey));
+    }
+
+    public static String getProofOfWork(String hash) {
+        String leadingZeros = new String(new char[Config.readInt(ConfigKeys.LEADING_ZEROS)]).replace("\0", "0");
+        int work;
+        for(work = 0;; work++) {
+            String potentialHash = CommonUtils.bytesToHex(getHashBytes(hash + work));
+            if(potentialHash.startsWith(leadingZeros)) {
+                break;
+            }
+        }
+        return String.valueOf(work);
     }
 }

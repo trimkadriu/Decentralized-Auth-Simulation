@@ -24,28 +24,31 @@ public final class DBConnection {
     private static final String username = Config.readValue(ConfigKeys.DB_USER);
     private static final String password = Config.readValue(ConfigKeys.DB_PASSWORD);
 
-    private Connection dbConnection = null;
+    private static Connection dbConnection = null;
 
     private DBConnection() {
         connectDB();
     }
 
     public static Connection getConnection() {
-        return new DBConnection().dbConnection;
+        connectDB();
+        return dbConnection;
     }
 
-    private boolean connectDB() {
-        try {
-            // Register JDBC driver
-            Class.forName(driver);
-            // Open a dbConnection
-            dbConnection = DriverManager.getConnection(dbUrl, username, password);
-        } catch (ClassNotFoundException cn) {
-            System.out.println("Problem with driver\n" + cn.getMessage());
-            return false;
-        } catch (SQLException sq) {
-            System.out.println("Problem to connect in db\n" + sq.getMessage());
-            return false;
+    private static boolean connectDB() {
+        if(dbConnection == null) {
+            try {
+                // Register JDBC driver
+                Class.forName(driver);
+                // Open a dbConnection
+                dbConnection = DriverManager.getConnection(dbUrl, username, password);
+            } catch (ClassNotFoundException cn) {
+                System.out.println("Problem with driver\n" + cn.getMessage());
+                return false;
+            } catch (SQLException sq) {
+                System.out.println("Problem to connect in db\n" + sq.getMessage());
+                return false;
+            }
         }
         return true;
     }

@@ -100,6 +100,11 @@ public class TransactionService {
         return transactionDao.getSRBySPPublicKey(spPublicKey);
     }
 
+    public SRTransaction getLatestReqAuthTransaction() {
+        SRTransactionDao transactionDao = new SRTransactionDao();
+        return transactionDao.getLatestServiceRequest();
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Transaction> T convertToOtherTransaction(Transaction transaction, TransactionType transactionType) {
         GenericDao transactionDao = null;
@@ -127,14 +132,21 @@ public class TransactionService {
         return transaction.getSrReputation() > Double.parseDouble(Config.readValue(ConfigKeys.MIN_REPUTATION));
     }
 
+    public boolean isServiceConfirmationSet(BlockchainTransaction transaction) {
+        return transaction.isConfirmationServiceReceived() && transaction.isConfirmationServiceSent();
+    }
+
     public boolean verifyTransactionReputationOnBlockchain(SRTransaction srTransaction) {
         BlockchainTransactionDao bcTransactionDao = new BlockchainTransactionDao();
         TransactionDao transactionDao = new TransactionDao();
         BlockchainTransaction bcTransaction = bcTransactionDao.getLatestTransactionByPublicKey(srTransaction.getSrPublicKey());
         if (bcTransaction == null)
             return false;
+
         Map<TransactionType, String> transactionPublicKeys = transactionDao.getPublicKeysById(bcTransaction.getId());
-        double reputationToCompare = 0;
+        if(transactionPublicKeys == null)
+            return false;
+
         if (transactionPublicKeys.get(TransactionType.SR_TRANSACTION).equals(srTransaction.getSrPublicKey())) {
             return srTransaction.getSrReputation() == bcTransaction.getSrReputationOnBlockchain();
         } else if (transactionPublicKeys.get(TransactionType.SP_TRANSACTION).equals(srTransaction.getSrPublicKey())) {
@@ -143,5 +155,36 @@ public class TransactionService {
             return srTransaction.getSrReputation() == bcTransaction.getMinerReputationOnBlockchain();
         }
         return false;
+    }
+
+    public BlockchainTransaction setRewardOrPunishment(BlockchainTransaction transaction) {
+        SPTransaction spTransaction = convertToOtherTransaction(transaction, TransactionType.SP_TRANSACTION);
+        SRTransaction srTransaction = convertToOtherTransaction(transaction, TransactionType.SR_TRANSACTION);
+
+        double spReputation;
+
+        if(transaction.isConfirmationServiceSent()) {
+            // SP Reward
+            spReputation = spTransaction.getSpReputation() + Config.readInt(ConfigKeys.SP_REWARD);
+
+            double srReputation;
+            if(transaction.isConfirmationServiceReceived()) {
+                srReputation = srTransaction.getSrReputation();
+            } else {
+                // SR Punish
+                srReputation = srTransaction.getSrReputation() - Config.readInt(ConfigKeys.SR_PUNNISH);
+            }
+            transaction.setSrReputationOnBlockchain(srReputation);
+        } else {
+            // SP Punish
+            spReputation = spTransaction.getSpReputation() + Config.readInt(ConfigKeys.SP_PUNNISH);
+        }
+        transaction.setSpReputationOnBlockchain(spReputation);
+
+        // Miner Reward
+        double minerReputation = transaction.getMinerReputation() + Config.readInt(ConfigKeys.MINER_REWARD);
+        transaction.setMinerReputationOnBlockchain(minerReputation);
+
+        return transaction;
     }
 }

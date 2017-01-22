@@ -12,6 +12,7 @@ public class SPTransaction extends Transaction {
     private String spPublicKey;
     private String resultSignedData;
     private Date resultTimeStamp;
+    private double spReputation;
 
     public String getProvidedServiceResults() {
         return providedServiceResults;
@@ -45,6 +46,14 @@ public class SPTransaction extends Transaction {
         this.resultTimeStamp = resultTimeStamp;
     }
 
+    public double getSpReputation() {
+        return spReputation;
+    }
+
+    public void setSpReputation(double spReputation) {
+        this.spReputation = spReputation;
+    }
+
     @Override
     public String toString() {
         return "SPTransaction{" +
@@ -52,6 +61,7 @@ public class SPTransaction extends Transaction {
                 ", spPublicKey='" + spPublicKey + '\'' +
                 ", resultSignedData='" + resultSignedData + '\'' +
                 ", resultTimeStamp=" + resultTimeStamp +
+                ", spReputation=" + spReputation +
                 '}';
     }
 }

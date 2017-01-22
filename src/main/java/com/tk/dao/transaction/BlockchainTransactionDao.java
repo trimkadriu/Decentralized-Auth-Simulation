@@ -38,8 +38,9 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
         try {
             String SQL = String.format("INSERT INTO %s (`id`, `status`, `type`, `miner_public_key`, `blockchain_signed_data`, " +
                     "`blockchain_time_stamp`, `sr_reputation_on_blockchain`, `sp_reputation_on_blockchain`, " +
-                    "`miner_reputation_on_blockchain`, `proof_of_work`, `confirmation_service_received`, `confirmation_service_sent`) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", TABLE_NAME);
+                    "`miner_reputation_on_blockchain`, `proof_of_work`, `confirmation_service_received`, " +
+                    "`confirmation_service_sent`, `miner_reputation`) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", TABLE_NAME);
 
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setInt(1, transaction.getId());
@@ -54,6 +55,7 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
             statement.setString(10, transaction.getProofOfWork());
             statement.setBoolean(11, transaction.isConfirmationServiceReceived());
             statement.setBoolean(12, transaction.isConfirmationServiceSent());
+            statement.setDouble(13, transaction.getMinerReputation());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -66,7 +68,7 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
             String SQL = String.format("UPDATE %s SET `status` = ?, `type` = ?, `miner_public_key` = ?, `blockchain_signed_data` = ?, " +
                     "`blockchain_time_stamp` = ?, `sr_reputation_on_blockchain` = ?, `sp_reputation_on_blockchain` = ?, " +
                     "`miner_reputation_on_blockchain` = ?, `proof_of_work` = ?, `confirmation_service_received` = ?, " +
-                    "`confirmation_service_sent` = ? WHERE `id` = ?;", TABLE_NAME);
+                    "`confirmation_service_sent` = ?, `miner_reputation` = ? WHERE `id` = ?;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setString(1, transaction.getStatus().toString());
             statement.setString(2, transaction.getType().toString());
@@ -79,7 +81,8 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
             statement.setString(9, transaction.getProofOfWork());
             statement.setBoolean(10, transaction.isConfirmationServiceReceived());
             statement.setBoolean(11, transaction.isConfirmationServiceSent());
-            statement.setInt(12, transaction.getId());
+            statement.setDouble(12, transaction.getMinerReputation());
+            statement.setInt(13, transaction.getId());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -97,7 +100,7 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
         BlockchainTransaction transaction = null;
         try {
             String SQL = String.format("SELECT * FROM %s WHERE ? IN(`sr_public_key`, `sp_public_key`, `miner_public_key`) " +
-                    "AND `status` = ? ORDER BY blockchain_time_stamp DESC LIMIT 1;", TABLE_NAME);
+                    "AND `status` = ? ORDER BY `blockchain_time_stamp` DESC LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setString(1, publicKey);
             statement.setString(2, TransactionStatus.BLOCKCHAINED.toString());
@@ -132,6 +135,7 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
             transaction.setProofOfWork(resultSet.getString("proof_of_work"));
             transaction.setConfirmationServiceSent(resultSet.getBoolean("confirmation_service_sent"));
             transaction.setConfirmationServiceReceived(resultSet.getBoolean("confirmation_service_received"));
+            transaction.setMinerReputation(resultSet.getDouble("miner_reputation"));
         }
         return transaction;
     }

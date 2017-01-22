@@ -10,7 +10,6 @@ import com.tk.domain.transaction.SRTransaction;
 import com.tk.service.CryptoService;
 import com.tk.service.NodeService;
 import com.tk.service.TransactionService;
-import com.tk.service.factory.TransactionFactory;
 import com.tk.service.util.CommonUtils;
 import com.tk.service.util.DummyDataGenerator;
 
@@ -36,12 +35,16 @@ public class SPNodeController implements NodeController {
         System.out.println("║    Service Provider NODE Started     ║");
         System.out.println("╚════════════════════════╝");
 
-        System.out.println("--> Waiting for the Service to be Requested");
+        System.out.println("--> Waiting for a Service to be Requested");
         SRTransaction srTransaction = transactionService.getRequestedTransaction(node.getPublicKey());
         while (srTransaction == null) {
             CommonUtils.sync();
             srTransaction = transactionService.getRequestedTransaction(node.getPublicKey());
         }
+
+        System.out.println("--> A Service is Requested");
+        srTransaction.setStatus(TransactionStatus.REQ_AUTHENTICATION);
+        transactionService.saveOrUpdate(srTransaction);
 
         //TODO: Handle un-authenticated transaction
         System.out.println("--> Waiting for the transaction to be Authenticated");
@@ -57,6 +60,7 @@ public class SPNodeController implements NodeController {
         spTransaction.setStatus(TransactionStatus.SERVICE_PROVIDED);
         spTransaction.setResultTimeStamp(new Date());
         String signatureData = node.getPublicKey() + node.getReputation() + spTransaction.getProvidedServiceResults();
+        spTransaction.setSpReputation(node.getReputation());
         spTransaction.setResultSignedData(CryptoService.digitallySign(signatureData, node.getPrivateKey()));
         transactionService.saveOrUpdate(spTransaction);
 
@@ -73,7 +77,7 @@ public class SPNodeController implements NodeController {
             CommonUtils.sync();
         }
 
-        double latestRepuation = transactionService.getBlockchainTransaction(spTransaction.getId()).getSrReputationOnBlockchain();
+        double latestRepuation = transactionService.getBlockchainTransaction(spTransaction.getId()).getSpReputationOnBlockchain();
         System.out.println("--> My reputation after transaction in Blockchain");
         System.out.println("--> REPUTATION: " + latestRepuation);
 

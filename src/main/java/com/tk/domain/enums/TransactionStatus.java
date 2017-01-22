@@ -7,6 +7,7 @@ package com.tk.domain.enums;
  */
 public enum TransactionStatus {
     SERVICE_REQUESTED,
+    REQ_AUTHENTICATION,
     AUTHENTICATED,
     UNAUTHENTICATED,
     SERVICE_PROVIDED,

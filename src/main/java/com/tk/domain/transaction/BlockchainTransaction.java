@@ -8,6 +8,7 @@ import java.util.Date;
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
 public class BlockchainTransaction extends Transaction {
+    private double minerReputation;
     private String minerPublicKey;
     private String blockchainSignedData;
     private Date blockchainTimeStamp;
@@ -17,6 +18,14 @@ public class BlockchainTransaction extends Transaction {
     private String proofOfWork;
     private boolean confirmationServiceSent;
     private boolean confirmationServiceReceived;
+
+    public double getMinerReputation() {
+        return minerReputation;
+    }
+
+    public void setMinerReputation(double minerReputation) {
+        this.minerReputation = minerReputation;
+    }
 
     public String getMinerPublicKey() {
         return minerPublicKey;
@@ -93,7 +102,8 @@ public class BlockchainTransaction extends Transaction {
     @Override
     public String toString() {
         return "BlockchainTransaction{" +
-                "minerPublicKey='" + minerPublicKey + '\'' +
+                "minerReputation=" + minerReputation +
+                ", minerPublicKey='" + minerPublicKey + '\'' +
                 ", blockchainSignedData='" + blockchainSignedData + '\'' +
                 ", blockchainTimeStamp=" + blockchainTimeStamp +
                 ", srReputationOnBlockchain=" + srReputationOnBlockchain +

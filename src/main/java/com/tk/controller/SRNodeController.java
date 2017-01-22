@@ -1,11 +1,13 @@
 package com.tk.controller;
 
 import com.tk.domain.Node;
+import com.tk.domain.enums.NodeRole;
 import com.tk.domain.enums.TransactionStatus;
 import com.tk.domain.enums.TransactionType;
 import com.tk.domain.exception.DecAuthSimException;
 import com.tk.domain.transaction.SRTransaction;
 import com.tk.service.CryptoService;
+import com.tk.service.NodeService;
 import com.tk.service.TransactionService;
 import com.tk.service.factory.TransactionFactory;
 import com.tk.service.util.CommonUtils;
@@ -28,6 +30,7 @@ public class SRNodeController implements NodeController {
     }
 
     public void start(Node node) throws DecAuthSimException, InterruptedException {
+        NodeService nodeService = new NodeService(NodeRole.SR_NODE);
         //TODO: Handle method restart
         //TODO: Implement asking to whom do you want to send?
         String spPublicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMj/mJri58jpWcOh9RfqzdM1kRQAoDz5SgXyi0qcpubQ8w0KUikP6oK6YLXU0hNyYRRSaoxwpOI2g4ZjC2s8S7kCAwEAAQ==";
@@ -72,9 +75,13 @@ public class SRNodeController implements NodeController {
             CommonUtils.sync();
         }
 
+        double latestRepuation = transactionService.getBlockchainTransaction(transaction.getId()).getSrReputationOnBlockchain();
         System.out.println("--> My reputation after transaction in Blockchain");
-        System.out.println("--> REPUTATION: " +
-                transactionService.getBlockchainTransaction(transaction.getId()).getSrReputationOnBlockchain());
+        System.out.println("--> REPUTATION: " + latestRepuation);
+
+        node.setReputation(latestRepuation);
+        nodeService.saveOrUpdate(node);
+        System.out.println("--> Reputation is updated");
 
         System.out.println("\n\n\n");
     }

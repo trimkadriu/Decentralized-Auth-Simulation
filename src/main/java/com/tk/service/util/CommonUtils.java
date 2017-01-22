@@ -63,4 +63,8 @@ public class CommonUtils {
     public static void sync() throws InterruptedException {
         Thread.sleep(Integer.parseInt(Config.readValue(ConfigKeys.SYNC_TIMEOUT)));
     }
+
+    public static void timeOut() throws InterruptedException {
+        Thread.sleep(Integer.parseInt(Config.readValue(ConfigKeys.WAIT_TIMEOUT)));
+    }
 }

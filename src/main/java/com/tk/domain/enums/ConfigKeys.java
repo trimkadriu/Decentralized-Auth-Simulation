@@ -16,5 +16,6 @@ public enum ConfigKeys {
     SR_PUNNISH,
     SP_PUNNISH,
     MINER_REWARD,
-    SYNC_TIMEOUT
+    SYNC_TIMEOUT,
+    WAIT_TIMEOUT
 }

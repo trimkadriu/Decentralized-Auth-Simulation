@@ -97,9 +97,10 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
         BlockchainTransaction transaction = null;
         try {
             String SQL = String.format("SELECT * FROM %s WHERE ? IN(`sr_public_key`, `sp_public_key`, `miner_public_key`) " +
-                    "ORDER BY blockchain_time_stamp DESC LIMIT 1;", TABLE_NAME);
+                    "AND `status` = ? ORDER BY blockchain_time_stamp DESC LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setString(1, publicKey);
+            statement.setString(2, TransactionStatus.BLOCKCHAINED.toString());
 
             ResultSet resultSet = statement.executeQuery();
             transaction = fillData(resultSet);

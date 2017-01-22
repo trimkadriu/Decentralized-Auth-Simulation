@@ -1,12 +1,14 @@
 package com.tk.controller;
 
 import com.tk.domain.Node;
+import com.tk.domain.enums.NodeRole;
 import com.tk.domain.enums.TransactionStatus;
 import com.tk.domain.enums.TransactionType;
 import com.tk.domain.exception.DecAuthSimException;
 import com.tk.domain.transaction.SPTransaction;
 import com.tk.domain.transaction.SRTransaction;
 import com.tk.service.CryptoService;
+import com.tk.service.NodeService;
 import com.tk.service.TransactionService;
 import com.tk.service.factory.TransactionFactory;
 import com.tk.service.util.CommonUtils;
@@ -20,15 +22,15 @@ import java.util.Date;
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
 public class SPNodeController implements NodeController {
-    private TransactionFactory transactionFactory;
     private TransactionService transactionService;
 
     public SPNodeController() {
-        transactionFactory = new TransactionFactory();
         transactionService = new TransactionService();
     }
 
     public void start(Node node) throws DecAuthSimException, InterruptedException {
+        NodeService nodeService = new NodeService(NodeRole.SP_NODE);
+
         //TODO: Handle method restart
         System.out.println("╔════════════════════════╗");
         System.out.println("║    Service Provider NODE Started     ║");
@@ -71,9 +73,13 @@ public class SPNodeController implements NodeController {
             CommonUtils.sync();
         }
 
+        double latestRepuation = transactionService.getBlockchainTransaction(spTransaction.getId()).getSrReputationOnBlockchain();
         System.out.println("--> My reputation after transaction in Blockchain");
-        System.out.println("--> REPUTATION: " +
-                transactionService.getBlockchainTransaction(spTransaction.getId()).getSpReputationOnBlockchain());
+        System.out.println("--> REPUTATION: " + latestRepuation);
+
+        node.setReputation(latestRepuation);
+        nodeService.saveOrUpdate(node);
+        System.out.println("--> Reputation is updated");
 
         System.out.println("\n\n\n");
     }

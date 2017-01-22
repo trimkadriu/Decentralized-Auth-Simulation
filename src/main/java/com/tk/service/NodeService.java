@@ -36,8 +36,7 @@ public class NodeService {
     }
 
     public void saveOrUpdate(Node node) {
-        Node nodeInDB = getNode(node.getId());
-        if (nodeInDB != null) {
+        if (exists(node)) {
             nodeDao.update(node);
         } else {
             nodeDao.save(node);
@@ -67,11 +66,5 @@ public class NodeService {
 
         saveOrUpdate(node);
         return node;
-    }
-
-    public String generateSRSignature(Node node, String serviceName) {
-        String signatureData = node.getPublicKey() + node.getReputation() + serviceName;
-        String signatureDataHash = CryptoService.getHash(signatureData);
-        return CryptoService.encrypt(signatureDataHash, CryptoService.getPrivateKey(node.getPrivateKey()));
     }
 }

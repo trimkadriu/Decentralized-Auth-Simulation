@@ -7,7 +7,9 @@ import com.tk.dao.node.SRNodeDao;
 import com.tk.domain.enums.NodeRole;
 
 /**
- * Created by trimkadriu on 17-01-20.
+ * TransactionService
+ *
+ * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
 public class NodeDaoFactory {
 

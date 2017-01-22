@@ -15,6 +15,8 @@ public class BlockchainTransaction extends Transaction {
     private double spReputationOnBlockchain;
     private double minerReputationOnBlockchain;
     private String proofOfWork;
+    private boolean confirmationServiceSent;
+    private boolean confirmationServiceReceived;
 
     public String getMinerPublicKey() {
         return minerPublicKey;
@@ -72,6 +74,22 @@ public class BlockchainTransaction extends Transaction {
         this.proofOfWork = proofOfWork;
     }
 
+    public boolean isConfirmationServiceSent() {
+        return confirmationServiceSent;
+    }
+
+    public void setConfirmationServiceSent(boolean confirmationServiceSent) {
+        this.confirmationServiceSent = confirmationServiceSent;
+    }
+
+    public boolean isConfirmationServiceReceived() {
+        return confirmationServiceReceived;
+    }
+
+    public void setConfirmationServiceReceived(boolean confirmationServiceReceived) {
+        this.confirmationServiceReceived = confirmationServiceReceived;
+    }
+
     @Override
     public String toString() {
         return "BlockchainTransaction{" +
@@ -82,6 +100,8 @@ public class BlockchainTransaction extends Transaction {
                 ", spReputationOnBlockchain=" + spReputationOnBlockchain +
                 ", minerReputationOnBlockchain=" + minerReputationOnBlockchain +
                 ", proofOfWork='" + proofOfWork + '\'' +
+                ", confirmationServiceSent=" + confirmationServiceSent +
+                ", confirmationServiceReceived=" + confirmationServiceReceived +
                 '}';
     }
 }

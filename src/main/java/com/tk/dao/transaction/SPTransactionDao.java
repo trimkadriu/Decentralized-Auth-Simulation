@@ -4,13 +4,11 @@ import com.tk.dao.GenericDao;
 import com.tk.database.DBConnection;
 import com.tk.domain.enums.TransactionStatus;
 import com.tk.domain.enums.TransactionType;
+import com.tk.domain.transaction.BlockchainTransaction;
 import com.tk.domain.transaction.SPTransaction;
 import com.tk.service.factory.TransactionFactory;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 /**
@@ -49,7 +47,7 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
             statement.setString(4, transaction.getProvidedServiceResults());
             statement.setString(5, transaction.getSpPublicKey());
             statement.setString(6, transaction.getResultSignedData());
-            statement.setDate(7, (Date) transaction.getResultTimeStamp());
+            statement.setTimestamp(7, new Timestamp(transaction.getResultTimeStamp().getTime()));
 
             statement.executeUpdate();
         } catch (SQLException exception) {
@@ -68,21 +66,12 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
             statement.setString(3, transaction.getProvidedServiceResults());
             statement.setString(4, transaction.getSpPublicKey());
             statement.setString(5, transaction.getResultSignedData());
-            statement.setDate(6, (Date) transaction.getResultTimeStamp());
+            statement.setTimestamp(6, new Timestamp(transaction.getResultTimeStamp().getTime()));
             statement.setInt(7, transaction.getId());
 
             statement.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();
-        }
-    }
-
-    public void saveOrUpdate(SPTransaction transaction) {
-        SPTransaction transactionInBC = getById(transaction.getId());
-        if (transactionInBC != null) {
-            update(transaction);
-        } else {
-            save(transaction);
         }
     }
 
@@ -107,7 +96,8 @@ public class SPTransactionDao implements GenericDao<SPTransaction> {
             transaction.setProvidedServiceResults(resultSet.getString("provided_service_results"));
             transaction.setSpPublicKey(resultSet.getString("sp_public_key"));
             transaction.setResultSignedData(resultSet.getString("result_signed_data"));
-            transaction.setResultTimeStamp(resultSet.getDate("result_time_stamp"));
+            Timestamp resultTimestamp = resultSet.getTimestamp("result_time_stamp");
+            transaction.setResultTimeStamp(resultTimestamp == null ? null : new Date(resultTimestamp.getTime()));
         }
         return transaction;
     }

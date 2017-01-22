@@ -17,11 +17,9 @@ public final class CryptoService {
 
     public static String encrypt(String text, Key key) {
         String encrypted = null;
-        byte[] cipherText = null;
+        byte[] cipherText;
         try {
-            // get an RSA cipher object and print the provider
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
-            // encrypt the plain text using the public key
             cipher.init(Cipher.ENCRYPT_MODE, key);
             cipherText = cipher.doFinal(text.getBytes());
             encrypted = Base64.encodeBase64String(cipherText);
@@ -35,10 +33,7 @@ public final class CryptoService {
         byte[] encryptedText = Base64.decodeBase64(text);
         byte[] decryptedText = null;
         try {
-            // get an RSA cipher object and print the provider
             final Cipher cipher = Cipher.getInstance(ALGORITHM);
-
-            // decrypt the text using the private key
             cipher.init(Cipher.DECRYPT_MODE, key);
             decryptedText = cipher.doFinal(encryptedText);
 
@@ -88,5 +83,10 @@ public final class CryptoService {
         }
 
         return null;
+    }
+
+    public static String digitallySign(String data, String privateKey) {
+        String signatureDataHash = getHash(data);
+        return encrypt(signatureDataHash, getPrivateKey(privateKey));
     }
 }

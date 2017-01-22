@@ -13,6 +13,7 @@ public class SRTransaction extends Transaction {
     private String requestSignedData;
     private Date requestTimeStamp;
     private double srReputation;
+    private String spPublicKey;
 
     public String getRequestedServiceName() {
         return requestedServiceName;
@@ -54,6 +55,14 @@ public class SRTransaction extends Transaction {
         this.srReputation = srReputation;
     }
 
+    public String getSpPublicKey() {
+        return spPublicKey;
+    }
+
+    public void setSpPublicKey(String spPublicKey) {
+        this.spPublicKey = spPublicKey;
+    }
+
     @Override
     public String toString() {
         return "SRTransaction{" +
@@ -61,6 +70,7 @@ public class SRTransaction extends Transaction {
                 ", srPublicKey='" + srPublicKey + '\'' +
                 ", requestSignedData='" + requestSignedData + '\'' +
                 ", requestTimeStamp=" + requestTimeStamp +
+                ", spPublicKey=" + spPublicKey +
                 ", srReputation=" + srReputation +
                 '}';
     }

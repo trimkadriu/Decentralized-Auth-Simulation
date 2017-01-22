@@ -1,6 +1,7 @@
 package com.tk.service.util;
 
 import com.tk.domain.enums.CLIOptions;
+import com.tk.domain.enums.ConfigKeys;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang.SystemUtils;
 
@@ -57,5 +58,9 @@ public class CommonUtils {
         String timeNowString = String.valueOf(timeNow);
         int id = Integer.parseInt(timeNowString.substring(3, timeNowString.length() - 1));
         return id;
+    }
+
+    public static void sync() throws InterruptedException {
+        Thread.sleep(Integer.parseInt(Config.readValue(ConfigKeys.SYNC_TIMEOUT)));
     }
 }

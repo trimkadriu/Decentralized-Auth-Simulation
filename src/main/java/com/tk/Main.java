@@ -15,7 +15,6 @@ import java.util.Date;
 class Main {
 
     public static void main(String[] args) throws Exception {
-        System.out.println(CommonUtils.generateId()); System.exit(0);
         CommandLine commandLine = CommonUtils.getCLIOptions(args);
         if (commandLine == null)
             throw new DecAuthSimException("No options are provided");

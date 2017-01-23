@@ -14,6 +14,7 @@ import com.tk.domain.transaction.SRTransaction;
 import com.tk.domain.transaction.Transaction;
 import com.tk.service.util.Config;
 
+import javax.swing.tree.TreeNode;
 import java.security.PublicKey;
 import java.util.Map;
 
@@ -133,7 +134,8 @@ public class TransactionService {
     }
 
     public boolean isServiceConfirmationSet(BlockchainTransaction transaction) {
-        return transaction.isConfirmationServiceReceived() && transaction.isConfirmationServiceSent();
+        BlockchainTransaction bcTransaction = getBlockchainTransaction(transaction.getId());
+        return bcTransaction.isConfirmationServiceReceived() && bcTransaction.isConfirmationServiceSent();
     }
 
     public boolean verifyTransactionReputationOnBlockchain(SRTransaction srTransaction) {
@@ -160,31 +162,32 @@ public class TransactionService {
     public BlockchainTransaction setRewardOrPunishment(BlockchainTransaction transaction) {
         SPTransaction spTransaction = convertToOtherTransaction(transaction, TransactionType.SP_TRANSACTION);
         SRTransaction srTransaction = convertToOtherTransaction(transaction, TransactionType.SR_TRANSACTION);
+        BlockchainTransaction bcTransaction = convertToOtherTransaction(transaction, TransactionType.BLOCKCHAIN_TRANSACTION);
 
         double spReputation;
 
-        if(transaction.isConfirmationServiceSent()) {
+        if(bcTransaction.isConfirmationServiceSent()) {
             // SP Reward
             spReputation = spTransaction.getSpReputation() + Config.readInt(ConfigKeys.SP_REWARD);
 
             double srReputation;
-            if(transaction.isConfirmationServiceReceived()) {
+            if(bcTransaction.isConfirmationServiceReceived()) {
                 srReputation = srTransaction.getSrReputation();
             } else {
                 // SR Punish
                 srReputation = srTransaction.getSrReputation() - Config.readInt(ConfigKeys.SR_PUNNISH);
             }
-            transaction.setSrReputationOnBlockchain(srReputation);
+            bcTransaction.setSrReputationOnBlockchain(srReputation);
         } else {
             // SP Punish
             spReputation = spTransaction.getSpReputation() + Config.readInt(ConfigKeys.SP_PUNNISH);
         }
-        transaction.setSpReputationOnBlockchain(spReputation);
+        bcTransaction.setSpReputationOnBlockchain(spReputation);
 
         // Miner Reward
-        double minerReputation = transaction.getMinerReputation() + Config.readInt(ConfigKeys.MINER_REWARD);
-        transaction.setMinerReputationOnBlockchain(minerReputation);
+        double minerReputation = bcTransaction.getMinerReputation() + Config.readInt(ConfigKeys.MINER_REWARD);
+        bcTransaction.setMinerReputationOnBlockchain(minerReputation);
 
-        return transaction;
+        return bcTransaction;
     }
 }

@@ -18,7 +18,7 @@ import java.util.List;
  * @author: Trim Kadriu <trim.kadriu@gmail.com>
  */
 public abstract class NodeDao implements GenericDao<Node> {
-    private static final String TABLE_NAME = "nodes";
+    protected static final String TABLE_NAME = "nodes";
 
     public Node getById(int id) {
         Node node = null;
@@ -81,11 +81,7 @@ public abstract class NodeDao implements GenericDao<Node> {
         }
     }
 
-    protected Transaction getLatestReputationChangeTrx(Node node) {
-        BlockchainTransactionDao transactionDao = new BlockchainTransactionDao();
-        Transaction transaction = transactionDao.getLatestTransactionByPublicKey(node.getPublicKey());
-        return transaction;
-    }
+    public abstract List<? extends Transaction> getAllTransactions(Node node);
 
-    protected abstract List<? extends Transaction> getAllTransactions(Node node);
+    public abstract List<Node> getAll();
 }

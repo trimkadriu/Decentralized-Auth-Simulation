@@ -12,6 +12,7 @@ import com.tk.service.TransactionService;
 import com.tk.service.factory.TransactionFactory;
 import com.tk.service.util.CommonUtils;
 import com.tk.service.util.DummyDataGenerator;
+import com.tk.view.SRNodeView;
 
 import java.util.Date;
 
@@ -23,66 +24,65 @@ import java.util.Date;
 public class SRNodeController implements NodeController {
     private TransactionFactory transactionFactory;
     private TransactionService transactionService;
+    private NodeService nodeService;
+    private SRNodeView srNodeView;
 
     public SRNodeController() {
         transactionFactory = new TransactionFactory();
         transactionService = new TransactionService();
+        srNodeView = new SRNodeView();
     }
 
     public void start(Node node) throws DecAuthSimException, InterruptedException {
-        NodeService nodeService = new NodeService(NodeRole.SR_NODE);
         //TODO: Handle method restart
-        //TODO: Implement asking to whom do you want to send?
-        String spPublicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMj/mJri58jpWcOh9RfqzdM1kRQAoDz5SgXyi0qcpubQ8w0KUikP6oK6YLXU0hNyYRRSaoxwpOI2g4ZjC2s8S7kCAwEAAQ==";
+        nodeService = new NodeService(NodeRole.SR_NODE);
 
-        System.out.println("╔════════════════════════╗");
-        System.out.println("║    Service Requester NODE Started    ║");
-        System.out.println("╚════════════════════════╝");
+        // Initialize a transaction
+        srNodeView.showBanner();
+        String spPublicKey = srNodeView.askForSpNodePubKey(nodeService.getNodesByRole(NodeRole.SP_NODE));
+        srNodeView.printSendingServiceRequest();
 
-        System.out.println("--> Sending a service request transaction");
+        SRTransaction srTransaction = transactionFactory.getTransaction(TransactionType.SR_TRANSACTION);
+        srTransaction.setId(CommonUtils.generateId());
+        srTransaction.setStatus(TransactionStatus.SERVICE_REQUESTED);
+        srTransaction.setType(TransactionType.SR_TRANSACTION);
+        srTransaction.setRequestedServiceName(DummyDataGenerator.getServiceName());
+        srTransaction.setSrPublicKey(node.getPublicKey());
+        String signatureData = node.getPublicKey() + node.getReputation() + srTransaction.getRequestedServiceName();
+        srTransaction.setRequestSignedData(CryptoService.digitallySign(signatureData, node.getPrivateKey()));
+        srTransaction.setRequestTimeStamp(new Date());
+        srTransaction.setSrReputation(node.getReputation());
+        srTransaction.setSpPublicKey(spPublicKey);
+        transactionService.saveOrUpdate(srTransaction);
 
-        SRTransaction transaction = transactionFactory.getTransaction(TransactionType.SR_TRANSACTION);
-        transaction.setId(CommonUtils.generateId());
-        transaction.setStatus(TransactionStatus.SERVICE_REQUESTED);
-        transaction.setType(TransactionType.SR_TRANSACTION);
-        transaction.setRequestedServiceName(DummyDataGenerator.getServiceName());
-        transaction.setSrPublicKey(node.getPublicKey());
-        String signatureData = node.getPublicKey() + node.getReputation() + transaction.getRequestedServiceName();
-        transaction.setRequestSignedData(CryptoService.digitallySign(signatureData, node.getPrivateKey()));
-        transaction.setRequestTimeStamp(new Date());
-        transaction.setSrReputation(node.getReputation());
-        transaction.setSpPublicKey(spPublicKey);
-        transactionService.saveOrUpdate(transaction);
+        // Wait to receive the service result
+        srNodeView.printWaitServiceReceive();
+        while(!transactionService.hasStatus(srTransaction, TransactionStatus.SERVICE_PROVIDED) &&
+                !transactionService.hasStatus(srTransaction, TransactionStatus.UNAUTHENTICATED)) {
+            CommonUtils.sync();
+        }
+        srTransaction = transactionService.getSRTransaction(srTransaction.getId());
+        if(srTransaction.getStatus().equals(TransactionStatus.UNAUTHENTICATED)) {
+            srNodeView.printTrxNotAuthenticated();
+            return;
+        }
 
-        System.out.println("--> Service Request transaction sent");
+        // Service is received & set confirm
+        srNodeView.printServiceIsReceived(transactionService.getSPTransaction(srTransaction.getId()).getProvidedServiceResults());
+        srNodeView.printServiceReceivedConfirm();
+        transactionService.setConfirmationServiceReceived(srTransaction, true);
 
-        //TODO: Handle un-authenticated transaction
-        System.out.println("--> Waiting for the Service to be Provided");
-        while(!transactionService.hasStatus(transaction, TransactionStatus.SERVICE_PROVIDED)) {
+        // Waiting for transaction to be added on blockchain
+        srNodeView.printWaitTrxOnBlockchain();
+        while(!transactionService.hasStatus(srTransaction, TransactionStatus.BLOCKCHAINED)) {
             CommonUtils.sync();
         }
 
-        System.out.println("--> Service is provided");
-        System.out.println("  --> SERVICE RESULTS:");
-        System.out.println("     -----------------------");
-        System.out.println("      " + transactionService.getSPTransaction(transaction.getId()).getProvidedServiceResults());
-
-        System.out.println("\n--> Sending Service Received Confirmation");
-        transactionService.setConfirmationServiceReceived(transaction, true);
-
-        System.out.println("--> Waiting for the Transaction to be added on Blockchain");
-        while(!transactionService.hasStatus(transaction, TransactionStatus.BLOCKCHAINED)) {
-            CommonUtils.sync();
-        }
-
-        double latestRepuation = transactionService.getBlockchainTransaction(transaction.getId()).getSrReputationOnBlockchain();
-        System.out.println("--> My reputation after transaction in Blockchain");
-        System.out.println("--> REPUTATION: " + latestRepuation);
-
+        // Update reputation
+        double latestRepuation = transactionService.getBlockchainTransaction(srTransaction.getId()).getSrReputationOnBlockchain();
         node.setReputation(latestRepuation);
         nodeService.saveOrUpdate(node);
-        System.out.println("--> Reputation is updated");
-
-        System.out.println("\n\n\n");
+        srNodeView.printUpdatedReputation(latestRepuation);
     }
+
 }

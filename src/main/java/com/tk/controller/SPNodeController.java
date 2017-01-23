@@ -12,6 +12,7 @@ import com.tk.service.NodeService;
 import com.tk.service.TransactionService;
 import com.tk.service.util.CommonUtils;
 import com.tk.service.util.DummyDataGenerator;
+import com.tk.view.SPNodeView;
 
 import java.util.Date;
 
@@ -22,39 +23,42 @@ import java.util.Date;
  */
 public class SPNodeController implements NodeController {
     private TransactionService transactionService;
+    private SPNodeView spNodeView;
 
     public SPNodeController() {
         transactionService = new TransactionService();
+        spNodeView = new SPNodeView();
     }
 
     public void start(Node node) throws DecAuthSimException, InterruptedException {
+        //TODO: Handle method restart
         NodeService nodeService = new NodeService(NodeRole.SP_NODE);
 
-        //TODO: Handle method restart
-        System.out.println("╔════════════════════════╗");
-        System.out.println("║    Service Provider NODE Started     ║");
-        System.out.println("╚════════════════════════╝");
-
-        System.out.println("--> Waiting for a Service to be Requested");
+        // Wait for service request
+        spNodeView.showBanner();
         SRTransaction srTransaction = transactionService.getRequestedTransaction(node.getPublicKey());
         while (srTransaction == null) {
             CommonUtils.sync();
             srTransaction = transactionService.getRequestedTransaction(node.getPublicKey());
         }
 
-        System.out.println("--> A Service is Requested");
+        // Service is requested
         srTransaction.setStatus(TransactionStatus.REQ_AUTHENTICATION);
         transactionService.saveOrUpdate(srTransaction);
+        spNodeView.printServiceIsRequested();
 
-        //TODO: Handle un-authenticated transaction
-        System.out.println("--> Waiting for the transaction to be Authenticated");
-        while (!transactionService.hasStatus(srTransaction, TransactionStatus.AUTHENTICATED)) {
+        // Wait to receive the service result
+        while (!transactionService.hasStatus(srTransaction, TransactionStatus.AUTHENTICATED) &&
+                !transactionService.hasStatus(srTransaction, TransactionStatus.UNAUTHENTICATED))  {
             CommonUtils.sync();
         }
+        srTransaction = transactionService.getSRTransaction(srTransaction.getId());
+        if(srTransaction.getStatus().equals(TransactionStatus.UNAUTHENTICATED)) {
+            spNodeView.printTrxNotAuthenticated();
+            return;
+        }
 
-        System.out.println("--> Transaction Authenticated");
-        System.out.println("--> Providing the requested Service");
-
+        // Providing service results & confirm
         SPTransaction spTransaction = transactionService.convertToOtherTransaction(srTransaction, TransactionType.SP_TRANSACTION);
         spTransaction.setProvidedServiceResults(DummyDataGenerator.getServiceData());
         spTransaction.setStatus(TransactionStatus.SERVICE_PROVIDED);
@@ -63,28 +67,19 @@ public class SPNodeController implements NodeController {
         spTransaction.setSpReputation(node.getReputation());
         spTransaction.setResultSignedData(CryptoService.digitallySign(signatureData, node.getPrivateKey()));
         transactionService.saveOrUpdate(spTransaction);
-
-        System.out.println("--> Service is provided");
-        System.out.println("  --> SERVICE RESULTS:");
-        System.out.println("     -----------------------");
-        System.out.println("      " + spTransaction.getProvidedServiceResults());
-
-        System.out.println("\n--> Sending Service Provided Confirmation");
         transactionService.setConfirmationServiceSent(spTransaction, true);
+        spNodeView.printProvidingResults(spTransaction.getProvidedServiceResults());
 
-        System.out.println("--> Waiting for the Transaction to be added on Blockchain");
+        // Waiting for transaction to be added on blockchain
+        spNodeView.printWaitTrxOnBlockchain();
         while (!transactionService.hasStatus(spTransaction, TransactionStatus.BLOCKCHAINED)) {
             CommonUtils.sync();
         }
 
+        // Update reputation
         double latestRepuation = transactionService.getBlockchainTransaction(spTransaction.getId()).getSpReputationOnBlockchain();
-        System.out.println("--> My reputation after transaction in Blockchain");
-        System.out.println("--> REPUTATION: " + latestRepuation);
-
         node.setReputation(latestRepuation);
         nodeService.saveOrUpdate(node);
-        System.out.println("--> Reputation is updated");
-
-        System.out.println("\n\n\n");
+        spNodeView.printUpdatedReputation(latestRepuation);
     }
 }

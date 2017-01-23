@@ -7,6 +7,8 @@ import com.tk.domain.enums.NodeRole;
 import com.tk.domain.exception.DecAuthSimException;
 import com.tk.service.factory.NodeDaoFactory;
 
+import java.util.List;
+
 /**
  * SRNodeService
  *
@@ -66,5 +68,11 @@ public class NodeService {
 
         saveOrUpdate(node);
         return node;
+    }
+
+    public List<Node> getNodesByRole(NodeRole role) {
+        NodeDaoFactory nodeDaoFactory = new NodeDaoFactory();
+        NodeDao nodeDao = nodeDaoFactory.getNodeDao(role);
+        return nodeDao.getAll();
     }
 }

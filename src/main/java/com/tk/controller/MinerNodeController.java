@@ -14,6 +14,7 @@ import com.tk.service.NodeService;
 import com.tk.service.TransactionService;
 import com.tk.service.util.CommonUtils;
 import com.tk.service.util.Config;
+import com.tk.view.MinerNodeView;
 
 import java.util.Date;
 
@@ -24,51 +25,57 @@ import java.util.Date;
  */
 public class MinerNodeController implements NodeController {
     TransactionService transactionService;
+    MinerNodeView minerNodeView;
 
     public MinerNodeController() {
         transactionService = new TransactionService();
+        minerNodeView = new MinerNodeView();
     }
 
     public void start(Node node) throws DecAuthSimException, InterruptedException {
+        //TODO: Handle method restart
         NodeService nodeService = new NodeService(NodeRole.MINER_NODE);
 
-        //TODO: Handle method restart
-        System.out.println("╔════════════════════════╗");
-        System.out.println("║          Miner NODE Started          ║");
-        System.out.println("╚════════════════════════╝");
-
-        System.out.println("--> Waiting for an Authentication Request");
+        // Wait for authentication request
+        minerNodeView.showBanner();
         SRTransaction srTransaction = transactionService.getLatestReqAuthTransaction();
         while (srTransaction == null) {
             CommonUtils.sync();
             srTransaction = transactionService.getLatestReqAuthTransaction();
         }
-        System.out.println("--> Authentication is requested.");
 
-        System.out.println("--> Verifying the transaction.");
+        // Authentication is requested
+        minerNodeView.printAuthenticationRequested();
         if(trxVerifyStep1(srTransaction) && trxVerifyStep2(srTransaction) && trxVerifyStep3(srTransaction)) {
+            minerNodeView.printTrxAuthenticated();
             srTransaction.setStatus(TransactionStatus.AUTHENTICATED);
-            System.out.println("--> Transaction is Authenticated");
+            transactionService.saveOrUpdate(srTransaction);
         } else {
+            minerNodeView.printTrxNotAuthenticated();
             srTransaction.setStatus(TransactionStatus.UNAUTHENTICATED);
-            System.out.println("--> Transaction is not Authenticated");
-            //TODO: Handle the process when transaction unathenticated
+            transactionService.saveOrUpdate(srTransaction);
+            return;
         }
-        transactionService.saveOrUpdate(srTransaction);
 
-        System.out.println("--> Waiting for the Transaction to be provided");
+        // Wait for the service to be provided
+        minerNodeView.printWaitServiceProvided();
         int timeWaited = 0;
         while (!transactionService.hasStatus(srTransaction, TransactionStatus.SERVICE_PROVIDED)) {
             CommonUtils.sync();
             timeWaited += Config.readInt(ConfigKeys.SYNC_TIMEOUT);
             if(timeWaited >= Config.readInt(ConfigKeys.WAIT_TIMEOUT)) {
-                break; //TODO: Skip waiting for Confirmations -> Proceed on Rewards & Punishment
+                break;
             }
         }
 
+        // Update miner reputation
         BlockchainTransaction bcTransaction = transactionService
                 .convertToOtherTransaction(srTransaction, TransactionType.BLOCKCHAIN_TRANSACTION);
-        System.out.println("--> Waiting for Service Provided & Service Received Confirmations");
+        bcTransaction.setMinerReputation(node.getReputation());
+        transactionService.saveOrUpdate(bcTransaction);
+
+        // Wait for Service provided & received confirmation
+        minerNodeView.printServiceConfirmation();
         timeWaited = 0;
         while (!transactionService.isServiceConfirmationSet(bcTransaction)) {
             CommonUtils.sync();
@@ -78,55 +85,45 @@ public class MinerNodeController implements NodeController {
             }
         }
 
-        System.out.println("--> Deciding for Rewards or Punishments");
+        // Reward & Punish
+        minerNodeView.printRewardAndPunish();
         bcTransaction = transactionService.setRewardOrPunishment(bcTransaction);
 
-        System.out.println("--> Solving the Proof-of-Work (PoW)");
+        // Update transaction data
         SPTransaction spTransaction = transactionService.convertToOtherTransaction(bcTransaction, TransactionType.SP_TRANSACTION);
         String signatureData = node.getPublicKey() + srTransaction.getRequestSignedData() + spTransaction.getResultSignedData();
-
         bcTransaction.setMinerPublicKey(node.getPublicKey());
         bcTransaction.setBlockchainSignedData(CryptoService.digitallySign(signatureData, node.getPrivateKey()));
         bcTransaction.setBlockchainTimeStamp(new Date());
         bcTransaction.setProofOfWork(CryptoService.getProofOfWork(bcTransaction.getBlockchainSignedData()));
         bcTransaction.setStatus(TransactionStatus.BLOCKCHAINED);
-        System.out.println(String.format("  --> PoW: %s", bcTransaction.getProofOfWork()));
 
-        System.out.println("--> Transaction Added on Blockchain");
+        // Proof-of-Work & Blockchain
+        minerNodeView.printProofOfWork(bcTransaction.getProofOfWork());
         transactionService.saveOrUpdate(bcTransaction);
 
+        // Update reputation
         double latestRepuation = bcTransaction.getMinerReputationOnBlockchain();
-        System.out.println("--> My reputation after transaction in Blockchain");
-        System.out.println("--> REPUTATION: " + latestRepuation);
-
         node.setReputation(latestRepuation);
         nodeService.saveOrUpdate(node);
-        System.out.println("--> Reputation is updated");
-
-        System.out.println("\n\n\n");
+        minerNodeView.printUpdatedReputation(latestRepuation);
     }
 
     private boolean trxVerifyStep1(SRTransaction srTransaction) {
         boolean transactionIntegrity = transactionService.verifyTransactionIntegrity(srTransaction);
-        System.out.println(String.format("  --> Verifying Transaction => Integrity: %s",
-                Boolean.toString(transactionIntegrity).toUpperCase()));
+        minerNodeView.printVerifyIntegrity(transactionIntegrity);
         return transactionIntegrity;
     }
 
     private boolean trxVerifyStep2(SRTransaction srTransaction) {
         boolean transactionReputationRequired = transactionService.verifyTransactionReqReputation(srTransaction);
-        System.out.println(String.format("  --> Verifying Transaction => Required Reputation: %s",
-                Boolean.toString(transactionReputationRequired).toUpperCase()));
-        System.out.println(String.format("  --> Has [%.0f] reputation out of [%s] required",
-                srTransaction.getSrReputation(),
-                Config.readValue(ConfigKeys.MIN_REPUTATION)));
+        minerNodeView.printVerifyRequestReputation(transactionReputationRequired, srTransaction.getSrReputation());
         return transactionReputationRequired;
     }
 
     private boolean trxVerifyStep3(SRTransaction srTransaction) {
         boolean reputationOnBlockchain = transactionService.verifyTransactionReputationOnBlockchain(srTransaction);
-        System.out.println(String.format("  --> Verifying Transaction => Reputation on Blockchain: %s",
-                Boolean.toString(reputationOnBlockchain).toUpperCase()));
+        minerNodeView.printVerifyReputationBlockchain(reputationOnBlockchain);
         return reputationOnBlockchain;
     }
 }

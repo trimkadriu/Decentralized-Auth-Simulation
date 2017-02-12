@@ -22,10 +22,9 @@ public class BlockchainTransactionDao implements GenericDao<BlockchainTransactio
     public BlockchainTransaction getById(int id) {
         BlockchainTransaction transaction = null;
         try {
-            String SQL = String.format("SELECT * FROM %s WHERE `id` = ? AND `status` = ? LIMIT 1;", TABLE_NAME);
+            String SQL = String.format("SELECT * FROM %s WHERE `id` = ? LIMIT 1;", TABLE_NAME);
             PreparedStatement statement = DBConnection.getConnection().prepareStatement(SQL);
             statement.setInt(1, id);
-            statement.setString(2, TransactionStatus.BLOCKCHAINED.toString());
 
             ResultSet resultSet = statement.executeQuery();
             transaction = fillData(resultSet);

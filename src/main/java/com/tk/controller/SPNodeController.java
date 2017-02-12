@@ -1,6 +1,7 @@
 package com.tk.controller;
 
 import com.tk.domain.Node;
+import com.tk.domain.enums.ConfigKeys;
 import com.tk.domain.enums.NodeRole;
 import com.tk.domain.enums.TransactionStatus;
 import com.tk.domain.enums.TransactionType;
@@ -11,6 +12,7 @@ import com.tk.service.CryptoService;
 import com.tk.service.NodeService;
 import com.tk.service.TransactionService;
 import com.tk.service.util.CommonUtils;
+import com.tk.service.util.Config;
 import com.tk.service.util.DummyDataGenerator;
 import com.tk.view.SPNodeView;
 
@@ -47,7 +49,7 @@ public class SPNodeController implements NodeController {
         transactionService.saveOrUpdate(srTransaction);
         spNodeView.printServiceIsRequested();
 
-        // Wait to receive the service result
+        // Wait to Authenticate
         while (!transactionService.hasStatus(srTransaction, TransactionStatus.AUTHENTICATED) &&
                 !transactionService.hasStatus(srTransaction, TransactionStatus.UNAUTHENTICATED))  {
             CommonUtils.sync();
@@ -58,17 +60,23 @@ public class SPNodeController implements NodeController {
             return;
         }
 
-        // Providing service results & confirm
         SPTransaction spTransaction = transactionService.convertToOtherTransaction(srTransaction, TransactionType.SP_TRANSACTION);
-        spTransaction.setProvidedServiceResults(DummyDataGenerator.getServiceData());
-        spTransaction.setStatus(TransactionStatus.SERVICE_PROVIDED);
         spTransaction.setResultTimeStamp(new Date());
-        String signatureData = node.getPublicKey() + node.getReputation() + spTransaction.getProvidedServiceResults();
         spTransaction.setSpReputation(node.getReputation());
-        spTransaction.setResultSignedData(CryptoService.digitallySign(signatureData, node.getPrivateKey()));
         transactionService.saveOrUpdate(spTransaction);
-        transactionService.setConfirmationServiceSent(spTransaction, true);
-        spNodeView.printProvidingResults(spTransaction.getProvidedServiceResults());
+
+        if (!Config.readBoolean(ConfigKeys.SIM_SP_PUNNISH)) {
+            // Providing service results & confirm
+            spTransaction.setProvidedServiceResults(DummyDataGenerator.getServiceData());
+            spTransaction.setStatus(TransactionStatus.SERVICE_PROVIDED);
+            spTransaction.setResultTimeStamp(new Date());
+            String signatureData = node.getPublicKey() + node.getReputation() + spTransaction.getProvidedServiceResults();
+            spTransaction.setSpReputation(node.getReputation());
+            spTransaction.setResultSignedData(CryptoService.digitallySign(signatureData, node.getPrivateKey()));
+            transactionService.saveOrUpdate(spTransaction);
+            transactionService.setConfirmationServiceSent(spTransaction, true);
+            spNodeView.printProvidingResults(spTransaction.getProvidedServiceResults());
+        }
 
         // Waiting for transaction to be added on blockchain
         spNodeView.printWaitTrxOnBlockchain();

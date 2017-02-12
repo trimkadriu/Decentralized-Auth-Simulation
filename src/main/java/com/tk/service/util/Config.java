@@ -37,4 +37,9 @@ public class Config {
         initializeProperties();
         return Integer.parseInt(properties.getProperty(key.toString().toLowerCase()));
     }
+
+    public static boolean readBoolean(ConfigKeys key) {
+        initializeProperties();
+        return Boolean.parseBoolean(properties.getProperty(key.toString().toLowerCase()));
+    }
 }

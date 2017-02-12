@@ -1,6 +1,7 @@
 package com.tk.controller;
 
 import com.tk.domain.Node;
+import com.tk.domain.enums.ConfigKeys;
 import com.tk.domain.enums.NodeRole;
 import com.tk.domain.enums.TransactionStatus;
 import com.tk.domain.enums.TransactionType;
@@ -11,6 +12,7 @@ import com.tk.service.NodeService;
 import com.tk.service.TransactionService;
 import com.tk.service.factory.TransactionFactory;
 import com.tk.service.util.CommonUtils;
+import com.tk.service.util.Config;
 import com.tk.service.util.DummyDataGenerator;
 import com.tk.view.SRNodeView;
 
@@ -57,20 +59,23 @@ public class SRNodeController implements NodeController {
 
         // Wait to receive the service result
         srNodeView.printWaitServiceReceive();
-        while(!transactionService.hasStatus(srTransaction, TransactionStatus.SERVICE_PROVIDED) &&
-                !transactionService.hasStatus(srTransaction, TransactionStatus.UNAUTHENTICATED)) {
+        while (!transactionService.hasStatus(srTransaction, TransactionStatus.SERVICE_PROVIDED) &&
+                !transactionService.hasStatus(srTransaction, TransactionStatus.UNAUTHENTICATED) &&
+                !transactionService.hasStatus(srTransaction, TransactionStatus.BLOCKCHAINED)) {
             CommonUtils.sync();
         }
         srTransaction = transactionService.getSRTransaction(srTransaction.getId());
-        if(srTransaction.getStatus().equals(TransactionStatus.UNAUTHENTICATED)) {
+        if (srTransaction.getStatus().equals(TransactionStatus.UNAUTHENTICATED)) {
             srNodeView.printTrxNotAuthenticated();
             return;
         }
 
         // Service is received & set confirm
         srNodeView.printServiceIsReceived(transactionService.getSPTransaction(srTransaction.getId()).getProvidedServiceResults());
-        srNodeView.printServiceReceivedConfirm();
-        transactionService.setConfirmationServiceReceived(srTransaction, true);
+        if (!Config.readBoolean(ConfigKeys.SIM_SR_PUNNISH)) {
+            srNodeView.printServiceReceivedConfirm();
+            transactionService.setConfirmationServiceReceived(srTransaction, true);
+        }
 
         // Waiting for transaction to be added on blockchain
         srNodeView.printWaitTrxOnBlockchain();

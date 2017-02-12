@@ -180,7 +180,8 @@ public class TransactionService {
             bcTransaction.setSrReputationOnBlockchain(srReputation);
         } else {
             // SP Punish
-            spReputation = spTransaction.getSpReputation() + Config.readInt(ConfigKeys.SP_PUNNISH);
+            bcTransaction.setSrReputationOnBlockchain(srTransaction.getSrReputation());
+            spReputation = spTransaction.getSpReputation() - Config.readInt(ConfigKeys.SP_PUNNISH);
         }
         bcTransaction.setSpReputationOnBlockchain(spReputation);
 

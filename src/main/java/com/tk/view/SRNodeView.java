@@ -19,9 +19,9 @@ public class SRNodeView {
     }
 
     public void showBanner() {
-        System.out.println("╔════════════════════════╗");
+        System.out.println("╔══════════════════════════════════════╗");
         System.out.println("║    Service Requester NODE Started    ║");
-        System.out.println("╚════════════════════════╝");
+        System.out.println("╚══════════════════════════════════════╝");
     }
 
     public String askForSpNodePubKey(List<Node> spNodes) {

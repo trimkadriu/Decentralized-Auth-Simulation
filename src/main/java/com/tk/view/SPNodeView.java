@@ -8,9 +8,9 @@ package com.tk.view;
 public class SPNodeView {
 
     public void showBanner() {
-        System.out.println("╔════════════════════════╗");
+        System.out.println("╔══════════════════════════════════════╗");
         System.out.println("║    Service Provider NODE Started     ║");
-        System.out.println("╚════════════════════════╝");
+        System.out.println("╚══════════════════════════════════════╝");
         System.out.println("--> Waiting for a service request");
     }
 

@@ -11,9 +11,9 @@ import com.tk.service.util.Config;
 public class MinerNodeView {
 
     public void showBanner() {
-        System.out.println("╔════════════════════════╗");
+        System.out.println("╔══════════════════════════════════════╗");
         System.out.println("║          Miner NODE Started          ║");
-        System.out.println("╚════════════════════════╝");
+        System.out.println("╚══════════════════════════════════════╝");
         System.out.println("--> Waiting for an Authentication Request");
     }
 

@@ -130,7 +130,7 @@ public class TransactionService {
     }
 
     public boolean verifyTransactionReqReputation(SRTransaction transaction) {
-        return transaction.getSrReputation() > Double.parseDouble(Config.readValue(ConfigKeys.MIN_REPUTATION));
+        return transaction.getSrReputation() >= Double.parseDouble(Config.readValue(ConfigKeys.MIN_REPUTATION));
     }
 
     public boolean isServiceConfirmationSet(BlockchainTransaction transaction) {

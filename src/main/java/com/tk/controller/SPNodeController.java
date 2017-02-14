@@ -37,7 +37,7 @@ public class SPNodeController implements NodeController {
         NodeService nodeService = new NodeService(NodeRole.SP_NODE);
 
         // Wait for service request
-        spNodeView.showBanner();
+        spNodeView.showBanner(node);
         SRTransaction srTransaction = transactionService.getRequestedTransaction(node.getPublicKey());
         while (srTransaction == null) {
             CommonUtils.sync();

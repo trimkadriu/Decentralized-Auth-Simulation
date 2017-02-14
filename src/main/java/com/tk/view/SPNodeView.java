@@ -1,5 +1,7 @@
 package com.tk.view;
 
+import com.tk.domain.Node;
+
 /**
  * SPView
  *
@@ -7,10 +9,11 @@ package com.tk.view;
  */
 public class SPNodeView {
 
-    public void showBanner() {
+    public void showBanner(Node node) {
         System.out.println("╔══════════════════════════════════════╗");
         System.out.println("║    Service Provider NODE Started     ║");
         System.out.println("╚══════════════════════════════════════╝");
+        System.out.println("--> This node current Reputation: " + node.getReputation());
         System.out.println("--> Waiting for a service request");
     }
 

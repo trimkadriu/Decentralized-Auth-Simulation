@@ -40,7 +40,7 @@ public class SRNodeController implements NodeController {
         nodeService = new NodeService(NodeRole.SR_NODE);
 
         // Initialize a transaction
-        srNodeView.showBanner();
+        srNodeView.showBanner(node);
         String spPublicKey = srNodeView.askForSpNodePubKey(nodeService.getNodesByRole(NodeRole.SP_NODE));
         srNodeView.printSendingServiceRequest();
 

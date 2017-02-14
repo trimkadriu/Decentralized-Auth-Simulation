@@ -1,5 +1,6 @@
 package com.tk.view;
 
+import com.tk.domain.Node;
 import com.tk.domain.enums.ConfigKeys;
 import com.tk.service.util.Config;
 
@@ -10,10 +11,11 @@ import com.tk.service.util.Config;
  */
 public class MinerNodeView {
 
-    public void showBanner() {
+    public void showBanner(Node node) {
         System.out.println("╔══════════════════════════════════════╗");
         System.out.println("║          Miner NODE Started          ║");
         System.out.println("╚══════════════════════════════════════╝");
+        System.out.println("--> This node current Reputation: " + node.getReputation());
         System.out.println("--> Waiting for an Authentication Request");
     }
 

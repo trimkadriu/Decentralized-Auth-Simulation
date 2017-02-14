@@ -2,6 +2,7 @@ package com.tk.service.util;
 
 import com.tk.domain.enums.ConfigKeys;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -18,7 +19,10 @@ public class Config {
     private static void initializeProperties() {
         try {
             if (properties == null) {
-                InputStream configStream = Config.class.getClassLoader().getResourceAsStream(configFileName);
+                String appLocation = "D:\\Projects\\Decentralized-Auth-Simulation\\target\\";
+                FileInputStream configStream = new FileInputStream(appLocation + configFileName);
+                //InputStream configStream = configFileStram.
+                //InputStream configStream = Config.class.getClassLoader().getResourceAsStream(configFileName);
                 properties = new Properties();
                 properties.load(configStream);
                 configStream.close();

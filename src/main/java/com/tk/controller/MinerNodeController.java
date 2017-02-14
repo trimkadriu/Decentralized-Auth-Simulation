@@ -37,7 +37,7 @@ public class MinerNodeController implements NodeController {
         NodeService nodeService = new NodeService(NodeRole.MINER_NODE);
 
         // Wait for authentication request
-        minerNodeView.showBanner();
+        minerNodeView.showBanner(node);
         SRTransaction srTransaction = transactionService.getLatestReqAuthTransaction();
         while (srTransaction == null) {
             CommonUtils.sync();

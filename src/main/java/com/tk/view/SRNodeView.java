@@ -18,10 +18,11 @@ public class SRNodeView {
         scanner = new Scanner(System.in);
     }
 
-    public void showBanner() {
+    public void showBanner(Node node) {
         System.out.println("╔══════════════════════════════════════╗");
         System.out.println("║    Service Requester NODE Started    ║");
         System.out.println("╚══════════════════════════════════════╝");
+        System.out.println("--> This node current Reputation: " + node.getReputation());
     }
 
     public String askForSpNodePubKey(List<Node> spNodes) {

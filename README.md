@@ -1,6 +1,6 @@
 # Decentralized Authentication Simulation by using Reputation over Blockchain
 
-##Description
+## Description
 A simulation software created for the masters thesis with the title of 
 
 **"Introducing a Decentralized Framework to Provide Authentication on IoT devices"**
@@ -12,7 +12,7 @@ The intention is to simulate the blockchain by using a central database which fo
 
 Run the application to see all the parameters needed to pass.
 
-##Features
+## Features
 Some of the features of this application are:
 
 - Blockchain simulation by using a central DB
@@ -22,7 +22,7 @@ Some of the features of this application are:
 - Calculating Proof-of-Work by using Leading Zeros
 - Distributed Reputation Scheme
 
-##Requirements
+## Requirements
 This application was developed and tested with the following specifications:
 
 - Java JDK 8
@@ -30,7 +30,7 @@ This application was developed and tested with the following specifications:
 - Maven 4
 - Apache Commons
 
-##Installation
+## Installation
 To install this application first you need to make your environment ready as specified in requirements section.
 Then clone this repository and run the following on command line:
 
@@ -39,12 +39,12 @@ Then clone this repository and run the following on command line:
 - `mysql -u [username] -p [database_name] < dec_auth_sim.sql`
 - `Change the configuration file accordingly ("src/main/resources/config.properties")`
 
-##TODO: Improvements in the future
+## TODO: Improvements in the future
 - Add Spring to use the Dependency Injection
 - Add Hibernate for easier and better SQL Queries
 - Add AutoCreate Schema if does not exists functionality
 
-##Author
+## Author
 This project is developed as part of the Dissertation at The University of Sheffield - International Faculty, CITY College.
 
 **Student:** Trim Kadriu
